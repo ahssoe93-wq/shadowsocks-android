@@ -21,6 +21,7 @@
 package com.github.shadowsocks
 
 import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.os.Bundle
 import android.os.RemoteException
 import android.view.KeyCharacterMap
@@ -45,7 +46,9 @@ import com.github.shadowsocks.aidl.TrafficStats
 import com.github.shadowsocks.bg.BaseService
 import com.github.shadowsocks.preference.DataStore
 import com.github.shadowsocks.preference.OnPreferenceDataStoreChangeListener
+import com.github.shadowsocks.subscription.Subscription
 import com.github.shadowsocks.subscription.SubscriptionFragment
+import com.github.shadowsocks.subscription.SubscriptionService
 import com.github.shadowsocks.utils.Key
 import com.github.shadowsocks.utils.StartService
 import com.github.shadowsocks.widget.ListHolderListener
@@ -54,6 +57,7 @@ import com.github.shadowsocks.widget.StatsBar
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
+import java.net.URL
 
 class MainActivity : AppCompatActivity(), ShadowsocksConnection.Callback, OnPreferenceDataStoreChangeListener,
         NavigationView.OnNavigationItemSelectedListener {
@@ -136,6 +140,13 @@ class MainActivity : AppCompatActivity(), ShadowsocksConnection.Callback, OnPref
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContentView(R.layout.layout_main)
+        // KHP: seed the free subscription on first run so KHP Free SG + JP are already there.
+        if (Subscription.instance.urls.isEmpty()) {
+            Subscription.instance = Subscription().apply {
+                urls.add(URL("https://raw.githubusercontent.com/ahssoe93-wq/v2rayNG/khp-rebrand/subscription-ss.json"))
+            }
+            startService(Intent(this, SubscriptionService::class.java))
+        }
         snackbar = findViewById(R.id.snackbar)
         ViewCompat.setOnApplyWindowInsetsListener(snackbar, ListHolderListener)
         stats = findViewById(R.id.stats)
