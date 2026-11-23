@@ -141,14 +141,16 @@ class MainActivity : AppCompatActivity(), ShadowsocksConnection.Callback, OnPref
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContentView(R.layout.layout_main)
         // KHP: seed the free subscription on first run so KHP Free SG + JP are already there.
-        // jsDelivr mirror: raw.githubusercontent.com often fails DNS in Myanmar.
-        val khpUrl = URL("https://cdn.jsdelivr.net/gh/ahssoe93-wq/v2rayNG@khp-rebrand/subscription-ss.json")
+        // IP-direct file: the giize.com hostnames fail DNS on Myanmar mobile networks
+        // ("SOCKS: Network unreachable"); direct VPS IPs bypass the lookup entirely.
+        val khpUrl = URL("https://cdn.jsdelivr.net/gh/ahssoe93-wq/v2rayNG@khp-rebrand/subscription-ss-ip.json")
         val currentSub = Subscription.instance
-        var hasRawUrl = false
+        var hasOldUrl = false
         for (i in 0 until currentSub.urls.size()) {
-            if (currentSub.urls.get(i).host == "raw.githubusercontent.com") hasRawUrl = true
+            val host = currentSub.urls.get(i).host
+            if (host == "raw.githubusercontent.com" || host == "cdn.jsdelivr.net") hasOldUrl = true
         }
-        if (currentSub.urls.size() == 0 || hasRawUrl) {
+        if (currentSub.urls.size() == 0 || hasOldUrl) {
             Subscription.instance = Subscription().apply { urls.add(khpUrl) }
             startService(Intent(this, SubscriptionService::class.java))
         }
