@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity(), ShadowsocksConnection.Callback, OnPref
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContentView(R.layout.layout_main)
         // KHP: seed the free subscription on first run so KHP Free SG + JP are already there.
-        if (Subscription.instance.urls.isEmpty()) {
+        if (Subscription.instance.urls.size() == 0) {
             Subscription.instance = Subscription().apply {
                 urls.add(URL("https://raw.githubusercontent.com/ahssoe93-wq/v2rayNG/khp-rebrand/subscription-ss.json"))
             }
