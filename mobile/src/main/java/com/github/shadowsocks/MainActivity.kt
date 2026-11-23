@@ -141,10 +141,15 @@ class MainActivity : AppCompatActivity(), ShadowsocksConnection.Callback, OnPref
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContentView(R.layout.layout_main)
         // KHP: seed the free subscription on first run so KHP Free SG + JP are already there.
-        if (Subscription.instance.urls.size() == 0) {
-            Subscription.instance = Subscription().apply {
-                urls.add(URL("https://raw.githubusercontent.com/ahssoe93-wq/v2rayNG/khp-rebrand/subscription-ss.json"))
-            }
+        // jsDelivr mirror: raw.githubusercontent.com often fails DNS in Myanmar.
+        val khpUrl = URL("https://cdn.jsdelivr.net/gh/ahssoe93-wq/v2rayNG@khp-rebrand/subscription-ss.json")
+        val currentSub = Subscription.instance
+        var hasRawUrl = false
+        for (i in 0 until currentSub.urls.size()) {
+            if (currentSub.urls.get(i).host == "raw.githubusercontent.com") hasRawUrl = true
+        }
+        if (currentSub.urls.size() == 0 || hasRawUrl) {
+            Subscription.instance = Subscription().apply { urls.add(khpUrl) }
             startService(Intent(this, SubscriptionService::class.java))
         }
         snackbar = findViewById(R.id.snackbar)
